@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Whirlwind tour to Idris and dependent types</title>
+<meta name="author" content="(Toni Okuogume)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///Users/toku/Downloads/reveal.js-3.7.0/css/reveal.css"/>
+
+<link rel="stylesheet" href="file:///Users/toku/Downloads/reveal.js-3.7.0/css/theme/moon.css" id="theme"/>
+
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'file:///Users/toku/Downloads/reveal.js-3.7.0/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide"><h1 class="title">Whirlwind tour to Idris and dependent types</h1><h2 class="author">Toni Okuogume</h2><p class="date">Created: 2018-10-04 Thu 12:21</p>
+</section>
+
+<section>
+<section id="slide-orgfb65e02">
+<h2 id="orgfb65e02">Motivation</h2>
+</section>
+</section>
+<section>
+<section id="slide-org6407487">
+<h2 id="org6407487">What</h2>
+<ul>
+<li>Pure strict functional language with dependent types</li>
+<li>Version 1.0 2017, current version 1.3</li>
+<li>Developent by Edwin Brady from University of St Andrews</li>
+
+</ul>
+</section>
+<section id="slide-org1627b97">
+<h3 id="org1627b97">What</h3>
+<div class="org-src-container">
+
+<pre  class="src src-idris"><span style="color: #c6c6c6; background-color: #303030;">joku</span> <span style="color: #ff8700;">:</span> <span style="color: #c6c6c6; background-color: #303030;">String</span>
+<span style="color: #c6c6c6; background-color: #303030;">joku</span> <span style="color: #ff8700;">=</span> <span style="color: #ff4ea3;">"Jee jee jerry cotton"</span>
+</pre>
+</div>
+<aside class="notes">
+<p>
+Enter speaker notes here.
+</p>
+
+</aside>
+</section>
+<section id="slide-org4812370">
+<h4 id="org4812370">What</h4>
+</section>
+</section>
+<section>
+<section id="slide-org26aa559">
+<h2 id="org26aa559">Depentdent types</h2>
+</section>
+</section>
+<section>
+<section id="slide-org538b2fb">
+<h2 id="org538b2fb">Conclusion</h2>
+<div class="outline-text-2" id="text-org538b2fb">
+</div>
+</section>
+<section id="slide-orgefab677">
+<h3 id="orgefab677">Conclusion</h3>
+<ul>
+<li>Type driven development with Idris</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./idris_book.jpg" alt="idris_book.jpg" width="25%" height="25%" />
+</p>
+</div>
+<ul>
+<li>The Little Typer</li>
+
+</ul>
+
+<div class="figure">
+<p><img src="./the_little_typer.jpg" alt="the_little_typer.jpg" width="25%" height="25%" />
+</p>
+</div>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///Users/toku/Downloads/reveal.js-3.7.0/lib/js/head.min.js"></script>
+<script src="file:///Users/toku/Downloads/reveal.js-3.7.0/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: 'file:///Users/toku/Downloads/reveal.js-3.7.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+ { src: 'file:///Users/toku/Downloads/reveal.js-3.7.0/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'file:///Users/toku/Downloads/reveal.js-3.7.0/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'file:///Users/toku/Downloads/reveal.js-3.7.0/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: 'file:///Users/toku/Downloads/reveal.js-3.7.0/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }]
+});
+</script>
+</body>
+</html>

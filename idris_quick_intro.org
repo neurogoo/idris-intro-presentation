@@ -1,0 +1,36 @@
+#+Title: Whirlwind tour to Idris and dependent types
+#+Author: Toni Okuogume
+#+OPTIONS: num:nil toc:nil
+
+* Motivation
+* What
+- Pure strict functional language with dependent types
+- Version 1.0 2017, current version 1.3
+- Developent by Edwin Brady from University of St Andrews
+** What
+
+#+BEGIN_SRC idris
+ joku : String
+ joku = "Jee jee jerry cotton"
+#+END_SRC
+#+BEGIN_NOTES
+  Enter speaker notes here.
+#+END_NOTES
+*** What
+* Depentdent types
+* Conclusion
+** Conclusion
+- Type driven development with Idris
+#+ATTR_HTML: :width 25% :height 25%
+ [[./idris_book.jpg]]
+- The Little Typer
+#+ATTR_HTML: :width 25% :height 25%
+[[./the_little_typer.jpg]]
+
+
+
+* Ideoita mistä puhua/esitellä
+** Idriksen kehitys (Type driven development)
+** Pi ja Sigma tyypit
+** Vertaa Typescriptiin
+*** esim. Typescript state machine
