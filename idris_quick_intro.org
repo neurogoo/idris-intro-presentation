@@ -1,23 +1,58 @@
 #+Title: Whirlwind tour to Idris and dependent types
 #+Author: Toni Okuogume
 #+OPTIONS: num:nil toc:nil
+#+REVEAL_PLUGINS: (highlight)
 
 * Motivation
 * What
 - Pure strict functional language with dependent types
 - Version 1.0 2017, current version 1.3
 - Developent by Edwin Brady from University of St Andrews
-** What
-
+** Basic syntax
+Basic function
 #+BEGIN_SRC idris
- joku : String
- joku = "Jee jee jerry cotton"
+ f : String
+ f = "Testing"
 #+END_SRC
-#+BEGIN_NOTES
-  Enter speaker notes here.
-#+END_NOTES
-*** What
-* Depentdent types
+#+ATTR_REVEAL: :frag roll-in
+Takes a parameter
+#+ATTR_REVEAL: :frag roll-in
+#+BEGIN_SRC idris
+ hello : String -> String
+ hello n = "Hello " ++ n
+#+END_SRC
+
+* Dependent types
+** Dependent types
+Analogous to having first class functions
+- First class functions :: Functions can take other functions as parameters and return functions
+- First class types :: Functions can take types as parameters and return types
+** Simple example
+Function returning type
+#+BEGIN_SRC idris
+ isSingleton : Bool -> Type
+ isSingleton True = Nat
+ isSingleton False = List Nat
+#+END_SRC
+** Formal proof of leftPad
+#+BEGIN_SRC idris
+import Data.Vect
+
+-- `minus` is saturating subtraction, so this works like we want it to
+eq_max : (n, k : Nat) -> maximum k n = plus (n `minus` k) k
+eq_max  n     Z    = rewrite minusZeroRight n in 
+                     rewrite plusZeroRightNeutral n in Refl
+eq_max  Z    (S _) = Refl
+eq_max (S n) (S k) = rewrite sym $ plusSuccRightSucc (n `minus` k) k in 
+                     rewrite eq_max n k in Refl
+
+-- The type here says "the result is" padded to (maximum k n), and is padding plus the original
+leftPad : (x : a) -> (n : Nat) -> (xs : Vect k a)
+       -> (ys : Vect (maximum k n) a ** m : Nat ** ys = replicate m x ++ xs)
+leftPad {k} x n xs = rewrite eq_max n k in 
+                     (replicate (n `minus` k) x ++ xs ** n `minus` k ** Refl)
+#+END_SRC
+Code from https://github.com/hwayne/lets-prove-leftpad/blob/master/idris/Leftpad.idr
 * Conclusion
 ** Conclusion
 - Type driven development with Idris
@@ -27,10 +62,3 @@
 #+ATTR_HTML: :width 25% :height 25%
 [[./the_little_typer.jpg]]
 
-
-
-* Ideoita mistä puhua/esitellä
-** Idriksen kehitys (Type driven development)
-** Pi ja Sigma tyypit
-** Vertaa Typescriptiin
-*** esim. Typescript state machine

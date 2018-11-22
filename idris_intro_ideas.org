@@ -1,0 +1,5 @@
+* Ideoita mistä puhua/esitellä
+** Idriksen kehitys (Type driven development)
+** Pi ja Sigma tyypit
+** Vertaa Typescriptiin
+*** esim. Typescript state machine

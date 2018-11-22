@@ -11,7 +11,7 @@
 
 <link rel="stylesheet" href="file:///Users/toku/Downloads/reveal.js-3.7.0/css/theme/moon.css" id="theme"/>
 
-
+<link rel="stylesheet" href="file:///Users/toku/Downloads/reveal.js-3.7.0/lib/css/zenburn.css"/>
 <!-- If the query includes 'print-pdf', include the PDF print sheet -->
 <script>
     if( window.location.search.match( /print-pdf/gi ) ) {
@@ -26,17 +26,17 @@
 <body>
 <div class="reveal">
 <div class="slides">
-<section id="sec-title-slide"><h1 class="title">Whirlwind tour to Idris and dependent types</h1><h2 class="author">Toni Okuogume</h2><p class="date">Created: 2018-10-04 Thu 12:21</p>
+<section id="sec-title-slide"><h1 class="title">Whirlwind tour to Idris and dependent types</h1><h2 class="author">Toni Okuogume</h2><p class="date">Created: 2018-11-22 Thu 10:56</p>
 </section>
 
 <section>
-<section id="slide-orgfb65e02">
-<h2 id="orgfb65e02">Motivation</h2>
+<section id="slide-orgb371195">
+<h2 id="orgb371195">Motivation</h2>
 </section>
 </section>
 <section>
-<section id="slide-org6407487">
-<h2 id="org6407487">What</h2>
+<section id="slide-org743a43c">
+<h2 id="org743a43c">What</h2>
 <ul>
 <li>Pure strict functional language with dependent types</li>
 <li>Version 1.0 2017, current version 1.3</li>
@@ -44,38 +44,79 @@
 
 </ul>
 </section>
-<section id="slide-org1627b97">
-<h3 id="org1627b97">What</h3>
+<section id="slide-orge01bb5d">
+<h3 id="orge01bb5d">Basic syntax</h3>
+<p>
+Basic function
+</p>
 <div class="org-src-container">
 
-<pre  class="src src-idris"><span style="color: #c6c6c6; background-color: #303030;">joku</span> <span style="color: #ff8700;">:</span> <span style="color: #c6c6c6; background-color: #303030;">String</span>
-<span style="color: #c6c6c6; background-color: #303030;">joku</span> <span style="color: #ff8700;">=</span> <span style="color: #ff4ea3;">"Jee jee jerry cotton"</span>
-</pre>
+<pre><code class="idris" >f : String
+f = "Testing"
+</code></pre>
 </div>
-<aside class="notes">
-<p>
-Enter speaker notes here.
+<p class="fragment roll-in">
+Takes a parameter
 </p>
+<div class="org-src-container">
 
-</aside>
-</section>
-<section id="slide-org4812370">
-<h4 id="org4812370">What</h4>
-</section>
-</section>
-<section>
-<section id="slide-org26aa559">
-<h2 id="org26aa559">Depentdent types</h2>
+<pre class="fragment roll-in"><code class="idris" >hello : String -> String
+hello n = "Hello " ++ n
+</code></pre>
+</div>
+
 </section>
 </section>
 <section>
-<section id="slide-org538b2fb">
-<h2 id="org538b2fb">Conclusion</h2>
-<div class="outline-text-2" id="text-org538b2fb">
+<section id="slide-org3cbe450">
+<h2 id="org3cbe450">Dependent types</h2>
+<div class="outline-text-2" id="text-org3cbe450">
 </div>
 </section>
-<section id="slide-orgefab677">
-<h3 id="orgefab677">Conclusion</h3>
+<section id="slide-orgbb5a6e2">
+<h3 id="orgbb5a6e2">Dependent types</h3>
+<p>
+Analogous to higher order functions
+</p>
+<dl>
+<dt>Higher order function</dt><dd>functions that can take functions as values and return functions as values</dd>
+
+</dl>
+</section>
+<section id="slide-org37fe3d5">
+<h3 id="org37fe3d5">Formal proof of leftPad</h3>
+<div class="org-src-container">
+
+<pre><code class="idris" >import Data.Vect
+
+-- `minus` is saturating subtraction, so this works like we want it to
+eq_max : (n, k : Nat) -> maximum k n = plus (n `minus` k) k
+eq_max  n     Z    = rewrite minusZeroRight n in 
+                     rewrite plusZeroRightNeutral n in Refl
+eq_max  Z    (S _) = Refl
+eq_max (S n) (S k) = rewrite sym $ plusSuccRightSucc (n `minus` k) k in 
+                     rewrite eq_max n k in Refl
+
+-- The type here says "the result is" padded to (maximum k n), and is padding plus the original
+leftPad : (x : a) -> (n : Nat) -> (xs : Vect k a)
+       -> (ys : Vect (maximum k n) a ** m : Nat ** ys = replicate m x ++ xs)
+leftPad {k} x n xs = rewrite eq_max n k in 
+                     (replicate (n `minus` k) x ++ xs ** n `minus` k ** Refl)
+</code></pre>
+</div>
+<p>
+Code from <a href="https://github.com/hwayne/lets-prove-leftpad/blob/master/idris/Leftpad.idr">https://github.com/hwayne/lets-prove-leftpad/blob/master/idris/Leftpad.idr</a>
+</p>
+</section>
+</section>
+<section>
+<section id="slide-org928de68">
+<h2 id="org928de68">Conclusion</h2>
+<div class="outline-text-2" id="text-org928de68">
+</div>
+</section>
+<section id="slide-org4258597">
+<h3 id="org4258597">Conclusion</h3>
 <ul>
 <li>Type driven development with Idris</li>
 
@@ -126,11 +167,7 @@ multiplex: {
 
 // Optional libraries used to extend on reveal.js
 dependencies: [
- { src: 'file:///Users/toku/Downloads/reveal.js-3.7.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
- { src: 'file:///Users/toku/Downloads/reveal.js-3.7.0/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
- { src: 'file:///Users/toku/Downloads/reveal.js-3.7.0/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
- { src: 'file:///Users/toku/Downloads/reveal.js-3.7.0/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
- { src: 'file:///Users/toku/Downloads/reveal.js-3.7.0/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }]
+ { src: 'file:///Users/toku/Downloads/reveal.js-3.7.0/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }]
 });
 </script>
 </body>
