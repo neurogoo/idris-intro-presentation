@@ -3,3 +3,7 @@
 ** Pi ja Sigma tyypit
 ** Vertaa Typescriptiin
 *** esim. Typescript state machine
+** Implisiittiset parametrit
+** Voit antaa nimiä argumenteille
+** Idriksen tulevaisuus
+*** Idris 2.0/ Blodwen
