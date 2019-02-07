@@ -3,6 +3,9 @@ module LeftPad
 import Data.Vect
 import Data.Vect.Quantifiers
 
+simpleLeftPad : Char -> Int -> String -> Int
+simpleLeftPad = 2
+
 testing : String -> Type
 testing "Give me text" = String
 testing _              = Int

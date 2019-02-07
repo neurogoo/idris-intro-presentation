@@ -4,7 +4,7 @@
 #+REVEAL_PLUGINS: (highlight)
 
 * Motivation
-
+  
 * What
 - Pure strict functional language with dependent types
 - Version 1.0 2017, current version 1.3
@@ -32,27 +32,51 @@ You can also refer to implicit arguments
   sayLength : Vect n a -> String
   sayLength {n} _ = "You gave Vector of length " ++ (cast n)
 #+END_SRC
+** Basic syntax: data
+   Product types
+   #+BEGIN_SRC idris
+   #+END_SRC
+   Sum types
+   #+BEGIN_SRC idris
+     data AuthorisationStatus = NotAuthorised | Authorised
+   #+END_SRC
 ** A step up
 *** Interfaces
-#+BEGIN_SRC idris
-  interface Show a where
-      show : a -> String
-#+END_SRC
+    - For implementing constrained generic types
+    - Somewhat similar to Rust traits or Haskell type classes
+    #+BEGIN_SRC idris
+      interface Show a where
+        show : a -> String
+    #+END_SRC
 ** Views and pattern matching
 
 * Dependent types
 ** Dependent types
-Analogous to having first class functions
-- First class functions :: Functions can take other functions as parameters and return functions
-- First class types :: Functions can take types as parameters and return types
+   Analogous to having first class functions
+   - First class functions :: Functions can take other functions as parameters and return functions
+   - First class types :: Functions can take types as parameters and return types
 ** Simple example
-Function returning type
-#+BEGIN_SRC idris
- isSingleton : Bool -> Type
- isSingleton True = Nat
- isSingleton False = List Nat
-#+END_SRC
+   Function returning type
+   #+BEGIN_SRC idris
+     isSingleton : Bool -> Type
+     isSingleton True = Nat
+     isSingleton False = List Nat
+   #+END_SRC
 ** Dependent pair
+*** Dependent pair
+    - Dependent pair
+    #+BEGIN_SRC idris
+      (a ** b)
+    #+END_SRC
+    Where type of b is /dependent/ on type of a
+    - Think, "There is some value of type /a/ that so that type /b/ exist"   
+    - Also called as Sigma types
+*** Dependent pair
+    Simple example
+    #+BEGIN_SRC idris
+      squareIsFour : (n ** (n * n = 4))
+      squareIsFour = (2 ** Refl)
+    #+END_SRC
 ** Views with dependent types
 *** Example: NatToBin
 #+BEGIN_SRC idris
@@ -64,31 +88,69 @@ Function returning type
      Odd  : Parity (S (n + n))
 #+END_SRC
 ** Formal proof of leftPad
-*** Formal proof of leftPad [1/2]
-#+BEGIN_SRC idris
-simpleLeftPad : Char -> Int -> String -> String
-#+END_SRC
+*** Formal proof of leftPad
+    - What should leftPad function do?
+      /Left pad should take padding character, output string length and starting string/
+      /and it should output a new string that is padded with given padding character/
+     /from left side of the starting string until the new string is same size as the/
+     /given size limit. If size limit is smaller than the original string, give back/
+     /just the original string/
+*** Formal proof of leftPad
+*** Formal proof of leftPad
+    #+BEGIN_SRC idris
+      simpleLeftPad : Char -> Int -> String -> String
+      simpleLeftPad x n xs = xs
+    #+END_SRC
 *** Formal proof of leftPad [2/2]
-#+BEGIN_SRC idris
-import Data.Vect
+    #+BEGIN_SRC idris
+      import Data.Vect
 
--- `minus` is saturating subtraction, so this works like we want it to
-eq_max : (n, k : Nat) -> maximum k n = plus (n `minus` k) k
-eq_max  n     Z    = rewrite minusZeroRight n in 
-                     rewrite plusZeroRightNeutral n in Refl
-eq_max  Z    (S _) = Refl
-eq_max (S n) (S k) = rewrite sym $ plusSuccRightSucc (n `minus` k) k in 
-                     rewrite eq_max n k in Refl
+      -- `minus` is saturating subtraction, so this works like we want it to
+      eq_max : (n, k : Nat) -> maximum k n = plus (n `minus` k) k
+      eq_max  n     Z    = rewrite minusZeroRight n in 
+                           rewrite plusZeroRightNeutral n in Refl
+      eq_max  Z    (S _) = Refl
+      eq_max (S n) (S k) = rewrite sym $ plusSuccRightSucc (n `minus` k) k in 
+                           rewrite eq_max n k in Refl
 
--- The type here says "the result is" padded to (maximum k n), and is padding plus the original
-leftPad : (x : a) -> (n : Nat) -> (xs : Vect k a)
-       -> (ys : Vect (maximum k n) a ** m : Nat ** ys = replicate m x ++ xs)
-leftPad {k} x n xs = rewrite eq_max n k in 
-                     (replicate (n `minus` k) x ++ xs ** n `minus` k ** Refl)
-#+END_SRC
+      -- The type here says "the result is" padded to (maximum k n), and is padding plus the original
+      leftPad : (x : a) -> (n : Nat) -> (xs : Vect k a)
+             -> (ys : Vect (maximum k n) a ** m : Nat ** ys = replicate m x ++ xs)
+      leftPad {k} x n xs = rewrite eq_max n k in 
+                           (replicate (n `minus` k) x ++ xs ** n `minus` k ** Refl)
+    #+END_SRC
 Code from https://github.com/hwayne/lets-prove-leftpad/blob/master/idris/Leftpad.idr
+** Typed state machine with dependent types
+*** State machine interface
+    #+BEGIN_SRC idris
+      data Access = LoggedOut | LoggedIn
+
+      interface DataStore (m : Type -> Type) where
+        Store : Access -> Type
+
+        connect : ST m Var [add (Store LoggedOut)]
+        disconnect : (store : Var) -> ST m () [remove store (Store LoggedOut)]
+
+        readSecret : (store : Var) -> ST m String [store ::: Store LoggedIn]
+        login : (store : Var) ->
+                ST m LoginResult [store ::: Store LoggedOut :->
+                                   (\res => Store (case res of
+                                                        OK => LoggedIn
+                                                        BadPassword => LoggedOut))]
+        logout : (store : Var) -> ST m () [store ::: Store LoggedIn :-> Store LoggedOut]
+    #+END_SRC
 * Conclusion
 ** Conclusion
+   So, rewrite everything in Ru...Idris?
+** Problems
+   - Runtime very slow
+   - Mostly 1 person academic project
+   - Pretty non-existant library ecosystem
+** Use-cases
+   - Prototype compilicated code paths
+   - Proof correctness
+   - Expand mind about the possible future of the field
+** Learning more
 - Type driven development with Idris
 #+ATTR_HTML: :width 25% :height 25%
  [[./idris_book.jpg]]
