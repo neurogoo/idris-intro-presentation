@@ -1,3 +1,9 @@
+---
+patat:
+    slideLevel: 3
+    images:
+        backend: iterm2
+...
 #+Title: Whirlwind tour to Idris and dependent types
 #+Author: Toni Okuogume
 #+OPTIONS: num:nil toc:nil
@@ -8,37 +14,61 @@
 * What
 - Pure strict functional language with dependent types
 - Version 1.0 2017, current version 1.3
-- Developent by Edwin Brady from University of St Andrews
+- Developed by Edwin Brady from University of St Andrews
 ** Basic syntax
-Basic function
+*** Functions
 #+BEGIN_SRC idris
   f : String
   f = "Testing"
 #+END_SRC
-#+ATTR_REVEAL: :frag roll-in
+*** Functions
 Takes a parameter
-#+ATTR_REVEAL: :frag roll-in
 #+BEGIN_SRC idris
  hello : String -> String
  hello n = "Hello " ++ n
 #+END_SRC
+*** Functions
 You can give names to all type arguments
 #+BEGIN_SRC idris
   greeter : (name : String) -> (city : String) -> String
   greeter name city = "Hello " ++ name ++ " from " ++ city
 #+END_SRC
+*** Functions
 You can also refer to implicit arguments
 #+BEGIN_SRC idris
   sayLength : Vect n a -> String
   sayLength {n} _ = "You gave Vector of length " ++ (cast n)
 #+END_SRC
 ** Basic syntax: data
-   Product types
-   #+BEGIN_SRC idris
-   #+END_SRC
+*** Data types
    Sum types
    #+BEGIN_SRC idris
      data AuthorisationStatus = NotAuthorised | Authorised
+   #+END_SRC
+*** Data types
+   Can be also writen in form
+   #+BEGIN_SRC idris
+     data AuthorisationStatus where
+       NotAuthorised : AuthorisationStatus
+       Authorised : AuthorisationStatus
+   #+END_SRC
+*** Data types
+   Dependent data types
+   #+BEGIN_SRC idris
+     data PriceCategory = Regular | BestBefore | Membership
+
+     data ProductPrice : PriceCategory -> Type where
+       Regular : ProductPrice Regular
+       BestBefore : ProductPrice BestBefore
+       Membership : (discountprecent : Float) -> ProductPrice Membership
+   #+END_SRC
+*** Data types
+   Record types
+   #+BEGIN_SRC idris
+     record Tictactoe where
+       constructor MkTicTacToe
+       gameBoard : Grid
+       nextTurn : PlayerTurn
    #+END_SRC
 ** A step up
 *** Interfaces
@@ -142,22 +172,26 @@ Code from https://github.com/hwayne/lets-prove-leftpad/blob/master/idris/Leftpad
 * Conclusion
 ** Conclusion
    So, rewrite everything in Ru...Idris?
-** Problems
+*** Problems
    - Runtime very slow
    - Mostly 1 person academic project
    - Pretty non-existant library ecosystem
-** Use-cases
+*** Use-cases
    - Prototype compilicated code paths
    - Proof correctness
    - Expand mind about the possible future of the field
-** Learning more
-- Type driven development with Idris
-#+ATTR_HTML: :width 25% :height 25%
+** Books
+*** 
  [[./idris_book.jpg]]
-- The Little Typer
-#+ATTR_HTML: :width 25% :height 25%
-[[./the_little_typer.jpg]]
-* Sources
+***  
+ [[./the_little_typer.jpg]]
+*** Some similar languages
+ - Adga
+ - F*
+ - ATS
+ - Haskell with extensions
+ - Idris 2
+   + will have for example linear types
+** Sources
 - Idris tutorial
-- L
 
