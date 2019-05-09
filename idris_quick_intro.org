@@ -109,6 +109,7 @@ You can also refer to implicit arguments
          Empty : ListLast []
          NonEmpty : (xs : List a) -> (x : a) -> ListLast (xs ++ [x])
      #+END_SRC
+**** 
 * Dependent types
 ** Dependent types
    Analogous to having first class functions
