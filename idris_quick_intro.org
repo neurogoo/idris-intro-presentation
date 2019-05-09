@@ -8,10 +8,15 @@ patat:
 #+Author: Toni Okuogume
 #+OPTIONS: num:nil toc:nil
 #+REVEAL_PLUGINS: (highlight)
-
-* Motivation
-  
-* What
+* What I am going talk about
+- Motivation
+- Basic structures
+- Fancy things with dependent types
+- Conclusion
+* Motivation  
+- Fixing disconnect between the idea of the program with the code of the program
+- Currently used type systems don't have the ability express necessary ideas
+* What is Idris
 - Pure strict functional language with dependent types
 - Version 1.0 2017, current version 1.3
 - Developed by Edwin Brady from University of St Andrews
@@ -73,13 +78,37 @@ You can also refer to implicit arguments
 ** A step up
 *** Interfaces
     - For implementing constrained generic types
-    - Somewhat similar to Rust traits or Haskell type classes
+    - Think of Rust traits or Haskell type classes
     #+BEGIN_SRC idris
       interface Show a where
         show : a -> String
     #+END_SRC
 ** Views and pattern matching
+*** Pattern matching
+    #+BEGIN_SRC idris
+      data HotDrinks = Coffee | Tea
 
+      congratulation : HotDrinks -> String
+      congratulation Coffee = "First grind beans"
+      congratulation Tea    = "First boil water"
+    #+END_SRC
+*** Views
+**** Views
+   - Some times there is need for alternative view point to data structure
+     + For example classical linked list (1 (2 (3 (4 Nil))))
+     + What if we want to go backwards without reversing first?
+**** Normal list
+     #+BEGIN_SRC idris
+       data MyList : (a : Type) -> Type where
+         Nil : MyList a
+         (::) : (x : a) -> (xs : MyList a) -> MyList a
+     #+END_SRC 
+**** Reverse cons order
+     #+BEGIN_SRC idris
+       data ListLast : List a -> Type where
+         Empty : ListLast []
+         NonEmpty : (xs : List a) -> (x : a) -> ListLast (xs ++ [x])
+     #+END_SRC
 * Dependent types
 ** Dependent types
    Analogous to having first class functions
