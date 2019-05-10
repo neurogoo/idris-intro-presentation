@@ -23,15 +23,18 @@ patat:
 ** Basic syntax
 *** Functions
 #+BEGIN_SRC idris
-  f : String
-  f = "Testing"
-#+END_SRC
-*** Functions
-Takes a parameter
-#+BEGIN_SRC idris
  hello : String -> String
- hello n = "Hello " ++ n
+ hello name = "Hello " ++ name
 #+END_SRC
+
+- same in Typescript
+
+#+BEGIN_SRC typescript
+  function hello(name: string) {
+      return "Hello " + name
+  }
+#+END_SRC
+
 *** Functions
 You can give names to all type arguments
 #+BEGIN_SRC idris
@@ -44,6 +47,13 @@ You can also refer to implicit arguments
   sayLength : Vect n a -> String
   sayLength {n} _ = "You gave Vector of length " ++ (cast n)
 #+END_SRC
+
+- Example
+
+#+BEGIN_EXAMPLE
+  λΠ> sayLength [1,2,3]
+  "You gave Vector of length 3" : String
+#+END_EXAMPLE
 ** Basic syntax: data
 *** Data types
    Sum types
@@ -68,13 +78,36 @@ You can also refer to implicit arguments
        Membership : (discountPercent : Float) -> ProductPrice Membership
    #+END_SRC
 *** Data types
-   Record types
+    #+BEGIN_SRC idris
+      calculateFinalPrice : (productPrice : ProductPrice price category) -> Double
+      calculateFinalPrice {price} RegularPrice = price
+      calculateFinalPrice {price} BestBeforePrice = 0.7 * price
+      calculateFinalPrice {price} (MembershipPrice discount) = discount * price
+    #+END_SRC
+
+    #+BEGIN_SRC idris
+      limitedOffer : (productPrice : ProductPrice price category) -> {auto p : price < 20.0 = True} -> Double
+      limitedOffer {price} _ = 0.5 * price
+    #+END_SRC
+*** Data types
+   Record types (also called product types)
    #+BEGIN_SRC idris
-     record Tictactoe where
-       constructor MkTicTacToe
-       gameBoard : Grid
-       nextTurn : PlayerTurn
+     record Car where
+       constructor MkCar
+       model : String
+       year : Int
+
+     car : Car
+     car = MkCar "Ferrari" 1988
    #+END_SRC
+
+   #+BEGIN_EXAMPLE
+     λΠ> model car
+     "Ferrari" : String
+     λΠ> year car
+     1988 : Int
+   #+END_EXAMPLE
+
 ** A step up
 *** Interfaces
     - For implementing constrained generic types
@@ -83,7 +116,7 @@ You can also refer to implicit arguments
       interface Show a where
         show : a -> String
     #+END_SRC
-** Views and pattern matching
+** Pattern matching and views
 *** Pattern matching
     #+BEGIN_SRC idris
       data HotDrinks = Coffee | Tea
@@ -194,6 +227,25 @@ You can also refer to implicit arguments
          natToBin (j + j)     | Even = False :: natToBin j
          natToBin (S (j + j)) | Odd  = True  :: natToBin j
     #+END_SRC 
+** Typed state machine with dependent types
+*** State machine interface
+    #+BEGIN_SRC idris
+      data Access = LoggedOut | LoggedIn
+
+      interface DataStore (m : Type -> Type) where
+        Store : Access -> Type
+
+        connect : ST m Var [add (Store LoggedOut)]
+        disconnect : (store : Var) -> ST m () [remove store (Store LoggedOut)]
+
+        readSecret : (store : Var) -> ST m String [store ::: Store LoggedIn]
+        login : (store : Var) ->
+                ST m LoginResult [store ::: Store LoggedOut :->
+                                   (\res => Store (case res of
+                                                        OK => LoggedIn
+                                                        BadPassword => LoggedOut))]
+        logout : (store : Var) -> ST m () [store ::: Store LoggedIn :-> Store LoggedOut]
+    #+END_SRC
 ** Formal proof of leftPad
 *** Formal proof of leftPad
     - What should leftPad function do?
@@ -203,10 +255,10 @@ You can also refer to implicit arguments
      /given size limit. If size limit is smaller than the original string, give back/
      /just the original string/
 *** Formal proof of leftPad
-*** Formal proof of leftPad
+    Naive solution
     #+BEGIN_SRC idris
       simpleLeftPad : Char -> Int -> String -> String
-      simpleLeftPad x n xs = xs
+      simpleLeftPad padChar paddingLength xs = xs
     #+END_SRC
 *** Formal proof of leftPad [2/2]
     #+BEGIN_SRC idris
@@ -227,25 +279,6 @@ You can also refer to implicit arguments
                            (replicate (n `minus` k) x ++ xs ** n `minus` k ** Refl)
     #+END_SRC
 Code from https://github.com/hwayne/lets-prove-leftpad/blob/master/idris/Leftpad.idr
-** Typed state machine with dependent types
-*** State machine interface
-    #+BEGIN_SRC idris
-      data Access = LoggedOut | LoggedIn
-
-      interface DataStore (m : Type -> Type) where
-        Store : Access -> Type
-
-        connect : ST m Var [add (Store LoggedOut)]
-        disconnect : (store : Var) -> ST m () [remove store (Store LoggedOut)]
-
-        readSecret : (store : Var) -> ST m String [store ::: Store LoggedIn]
-        login : (store : Var) ->
-                ST m LoginResult [store ::: Store LoggedOut :->
-                                   (\res => Store (case res of
-                                                        OK => LoggedIn
-                                                        BadPassword => LoggedOut))]
-        logout : (store : Var) -> ST m () [store ::: Store LoggedIn :-> Store LoggedOut]
-    #+END_SRC
 * Conclusion
 ** Conclusion
    So, rewrite everything in Ru...Idris?
@@ -269,6 +302,7 @@ Code from https://github.com/hwayne/lets-prove-leftpad/blob/master/idris/Leftpad
  - Haskell with extensions
  - Idris 2
    + will have for example linear types
+* Questions?
 ** Sources
 - Idris tutorial
 
