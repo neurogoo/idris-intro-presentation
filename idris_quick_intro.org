@@ -19,7 +19,7 @@ patat:
 * What is Idris
 - Pure strict functional language with dependent types
 - Version 1.0 2017, current version 1.3
-- Developed by Edwin Brady from University of St Andrews
+- Developed by Edwin Brady from University of St Andrews (Scotland)
 ** Basic syntax
 *** Functions
 #+BEGIN_SRC idris
@@ -65,7 +65,7 @@ You can also refer to implicit arguments
      data ProductPrice : PriceCategory -> Type where
        Regular : ProductPrice Regular
        BestBefore : ProductPrice BestBefore
-       Membership : (discountprecent : Float) -> ProductPrice Membership
+       Membership : (discountPercent : Float) -> ProductPrice Membership
    #+END_SRC
 *** Data types
    Record types
@@ -93,29 +93,50 @@ You can also refer to implicit arguments
       congratulation Tea    = "First boil water"
     #+END_SRC
 *** Views
-**** Views
+   - Extending pattern matching
    - Some times there is need for alternative view point to data structure
      + For example classical linked list (1 (2 (3 (4 Nil))))
-     + What if we want to go backwards without reversing first?
-**** Normal list
+     + Easy to think from start to end, but harder to think from end to start
+     + What if we want to pattern match last item on list?
+*** Views
+    Normal list
      #+BEGIN_SRC idris
-       data MyList : (a : Type) -> Type where
-         Nil : MyList a
-         (::) : (x : a) -> (xs : MyList a) -> MyList a
+       data List : (a : Type) -> Type where
+         Nil : List a
+         (::) : (x : a) -> (xs : List a) -> List a
      #+END_SRC 
-**** Reverse cons order
+*** Views
+    Reverse cons order
      #+BEGIN_SRC idris
        data ListLast : List a -> Type where
          Empty : ListLast []
          NonEmpty : (xs : List a) -> (x : a) -> ListLast (xs ++ [x])
      #+END_SRC
-**** 
+*** Views
+    Helper function to convert normal List to ListLast
+    #+BEGIN_SRC idris
+      total
+      listLast : (xs : List a) -> ListLast xs
+      listLast [] = Empty
+      listLast (x :: xs) = 
+        case listLast xs of
+          Empty => NonEmpty [] x
+          NonEmpty ys y => NonEmpty (x :: ys) y
+    #+END_SRC
+*** Views
+    #+BEGIN_SRC idris
+      describeListEnd : List Int -> String
+      describeListEnd input with (listLast input)
+        describeListEnd []          | Empty = "Empty"
+        describeListEnd (xs ++ [x]) | (NonEmpty xs x)
+                = "Non-empty, initial portion = " ++ show xs
+    #+END_SRC
 * Dependent types
-** Dependent types
+*** Dependent types
    Analogous to having first class functions
    - First class functions :: Functions can take other functions as parameters and return functions
    - First class types :: Functions can take types as parameters and return types
-** Simple example
+*** Simple example
    Function returning type
    #+BEGIN_SRC idris
      isSingleton : Bool -> Type
@@ -130,7 +151,7 @@ You can also refer to implicit arguments
     #+END_SRC
     Where type of b is /dependent/ on type of a
     - Think, "There is some value of type /a/ that so that type /b/ exist"   
-    - Also called as Sigma types
+    - Also called as Sigma types or Existential types
 *** Dependent pair
     Simple example
     #+BEGIN_SRC idris
@@ -147,6 +168,32 @@ You can also refer to implicit arguments
      Even : Parity (n + n)
      Odd  : Parity (S (n + n))
 #+END_SRC
+*** Example: NatToBin
+    - *plusSuccRightSucc* proof that 1 + (x + y) = x + (1 + y)
+    #+BEGIN_SRC idris
+      helpEven : (j : Nat) -> Parity (S j + S j) -> Parity (S (S (plus j j)))
+      helpEven j p = rewrite plusSuccRightSucc j j in p
+
+      helpOdd : (j : Nat) -> Parity (S (S (j + S j))) -> Parity (S (S (S (j + j))))
+      helpOdd j p = rewrite plusSuccRightSucc j j in p
+    #+END_SRC
+*** Example: NatToBin
+    #+BEGIN_SRC idris
+      parity : (n:Nat) -> Parity n
+      parity Z     = Even {n=Z}
+      parity (S Z) = Odd {n=Z}
+      parity (S (S k)) with (parity k)
+        parity (S (S (j + j)))     | Even = helpEven j (Even {n = S j})
+        parity (S (S (S (j + j)))) | Odd  = helpOdd j (Odd {n = S j})
+    #+END_SRC
+*** Example: NatToBin
+    #+BEGIN_SRC idris
+      natToBin : Nat -> List Bool
+      natToBin Z = Nil
+      natToBin k with (parity k)
+         natToBin (j + j)     | Even = False :: natToBin j
+         natToBin (S (j + j)) | Odd  = True  :: natToBin j
+    #+END_SRC 
 ** Formal proof of leftPad
 *** Formal proof of leftPad
     - What should leftPad function do?
@@ -216,8 +263,8 @@ Code from https://github.com/hwayne/lets-prove-leftpad/blob/master/idris/Leftpad
 ***  
  [[./the_little_typer.jpg]]
 *** Some similar languages
- - Adga
- - F*
+ - Agda
+ - F* (not directly related F#)
  - ATS
  - Haskell with extensions
  - Idris 2
