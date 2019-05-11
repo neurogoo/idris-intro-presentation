@@ -191,6 +191,22 @@ You can also refer to implicit arguments
       squareIsFour : (n ** (n * n = 4))
       squareIsFour = (2 ** Refl)
     #+END_SRC
+*** Dependent pair
+    More complicated example
+    #+BEGIN_SRC idris
+      record Login where
+        constructor MkLogin
+        loginName : String
+        password : (p : String ** length p `GTE` 12)
+
+      passwordStrengthChecker : (password : String) -> Dec (length password `GTE` 12)
+      passwordStrengthChecker password = isLTE 12 (length password)
+
+      createNewUser : (loginName : String) -> (password : String) -> Either String Login
+      createNewUser loginName password = case passwordStrengthChecker password of
+        Yes prf => Right $ MkLogin loginName (password ** prf)
+        No prf  => Left "Password was not long enough"
+    #+END_SRC
 ** Views with dependent types
 *** Example: NatToBin
 #+BEGIN_SRC idris
@@ -303,6 +319,7 @@ Code from https://github.com/hwayne/lets-prove-leftpad/blob/master/idris/Leftpad
  - Idris 2
    + will have for example linear types
 * Questions?
-** Sources
+** Sources and links
 - Idris tutorial
+- Running serverless Idris https://donaldpinckney.com/idris/2019/03/26/idris-serverless.html
 

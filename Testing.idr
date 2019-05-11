@@ -2,6 +2,19 @@ module Testing
 
 import Data.Vect
 
+record Login where
+  constructor MkLogin
+  loginName : String
+  password : (p : String ** length p `GTE` 12)
+
+passwordStrengthChecker : (password : String) -> Dec (length password `GTE` 12)
+passwordStrengthChecker password = isLTE 12 (length password)
+
+createNewUser : (loginName : String) -> (password : String) -> Either String Login
+createNewUser loginName password = case passwordStrengthChecker password of
+  Yes prf => Right $ MkLogin loginName (password ** prf)
+  No prf  => Left "Password was not long enough"
+
 data ListLast : List a -> Type where
   Empty : ListLast []
   NonEmpty : (xs : List a) -> (x : a) -> ListLast (xs ++ [x])
