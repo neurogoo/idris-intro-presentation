@@ -24,3 +24,14 @@ vaihda se leftpading kanssa
 lisää esimerkki
 mieti voitko tehdä esimerkin vs RemoteData Typescript maailmassa
 Mieti voisitko puhua session tyypeistä
+* Muita ideoita
+- Muista kertoa miten Idris kääntyy (normi c-backend, mutta myös vaihtoehtoja kuten Javascript)
+- Muista mainita, että Idris on static
+- Kerro miten tehdään kommentti
+- Kerro muuttujista?
+- Näytä joku esimerkki virheestä minkä voit saada DataStorage esimerkistä
+- Kerro tyypitetyistä aukoista
+- Kerro SDL bindingeista ja FFI:stä
+- Nimeä mikä on generalized algebral data type
+- Mainitse, että on ML perheestä
+- Mainitse mutaatiosta

@@ -1,0 +1,11 @@
+@startuml
+[*] --> LoggedOut
+
+LoggedOut --> LoggedIn : Logging successfully
+LoggedOut --> LoggedOut : Logging failed
+
+LoggedIn --> LoggedIn : Display store
+LoggedIn --> LoggedIn : Add to store
+LoggedIn --> LoggedOut : Logout successfully
+
+@enduml

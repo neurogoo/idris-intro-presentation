@@ -9,6 +9,9 @@ patat:
 #+OPTIONS: num:nil toc:nil
 #+REVEAL_PLUGINS: (highlight)
 * What I am going talk about
+:PROPERTIES:
+:COMMENT: Remember to tell what you would like people getting out of this talk
+:END:
 - Motivation
 - Basic structures
 - Fancy things with dependent types
@@ -16,6 +19,18 @@ patat:
 * Motivation  
 - Fixing disconnect between the idea of the program with the code of the program
 - Currently used type systems don't have the ability express necessary ideas
+*** Motivating example
+  #+begin_src plantuml :file my-diagram.txt
+    title Authentication Sequence
+
+    Alice->Bob: Authentication Request
+    note right of Bob: Bob thinks about it
+    Bob->Alice: Authentication Response
+   #+end_src
+
+   #+RESULTS:
+   [[file:my-diagram.txt]]
+
 * What is Idris
 - Pure strict functional language with dependent types
 - Version 1.0 2017, current version 1.3.1
@@ -248,20 +263,135 @@ You can also refer to implicit arguments
     #+BEGIN_SRC idris
       data Access = LoggedOut | LoggedIn
 
-      interface DataStore (m : Type -> Type) where
-        Store : Access -> Type
+      data UsernameCheck = Authorized | NotAuthorized
 
-        connect : ST m Var [add (Store LoggedOut)]
-        disconnect : (store : Var) -> ST m () [remove store (Store LoggedOut)]
-
-        readSecret : (store : Var) -> ST m String [store ::: Store LoggedIn]
-        login : (store : Var) ->
-                ST m LoginResult [store ::: Store LoggedOut :->
-                                   (\res => Store (case res of
-                                                        OK => LoggedIn
-                                                        BadPassword => LoggedOut))]
-        logout : (store : Var) -> ST m () [store ::: Store LoggedIn :-> Store LoggedOut]
+      data DataStore : (a : Type) -> (beforeState : Access) -> (afterStateFn : a -> Access) -> Type where
+    #+END_SRC    
+*** State machine interface: Access management
+    #+BEGIN_SRC idris
+      data DataStore : (a : Type) -> (beforeState : Access) -> (afterStateFn : a -> Access) -> Type where
+        LoginToStore : (username : String)
+                     -> DataStore UsernameCheck LoggedOut (\check => case check of
+                                                                        Authorized => LoggedIn
+                                                                        NotAuthorized => LoggedOut)
+        LogoutFromStore : DataStore () LoggedIn (const LoggedOut)
     #+END_SRC
+*** State machine interface: Combining operations
+    #+BEGIN_SRC idris
+      (>>=) : DataStore a state1 state2Fn 
+            -> ((res : a) -> DataStore b (state2Fn res) state3Fn) 
+            -> DataStore b state1 state3Fn
+
+      -- Example
+      LoginToStore "user" >>= LogoutFromStore
+
+      -- Syntactic sugar
+      test = do
+        LoginToStore "user"
+        LogoutFromStore
+    #+END_SRC
+*** State machine interface: Example error
+    #+BEGIN_EXAMPLE
+       Specifically:
+               Type mismatch between
+                       LoggedIn
+               and
+                       case _ of
+                         Authorized => LoggedIn
+                         NotAuthorized => LoggedOut
+
+    #+END_EXAMPLE
+*** State machine interface: Data management
+    #+BEGIN_SRC idris
+        AddToList : a -> List a -> DataStore (List a) LoggedIn (const LoggedIn)
+        Display : (Show a) => a -> DataStore () LoggedIn (const LoggedIn)
+        Message : String -> DataStore () state (const state)
+    #+END_SRC
+*** State machine interface
+    #+BEGIN_SRC idris
+      data DataStore : (a : Type) -> (beforeState : Access) -> (afterStateFn : a -> Access) -> Type where
+        LoginToStore : (username : String)
+                     -> DataStore UsernameCheck LoggedOut (\check => case check of
+                                                                          Authorized => LoggedIn
+                                                                          NotAuthorized => LoggedOut)
+        LogoutFromStore : DataStore () LoggedIn (const LoggedOut)
+
+        AddToList : a -> List a -> DataStore (List a) LoggedIn (const LoggedIn)
+        Display : (Show a) => a -> DataStore () LoggedIn (const LoggedIn)
+        Message : String -> DataStore () state (const state)
+
+        Pure : (res : m) -> DataStore m (stateFn res) stateFn
+        (>>=) : DataStore a state1 state2Fn 
+              -> ((res : a) -> DataStore b (state2Fn res) state3Fn) 
+              -> DataStore b state1 state3Fn
+    #+END_SRC 
+*** State machine runner
+    #+BEGIN_SRC idris
+      runDataStore : DataStore res state1 state2fn -> IO res
+      runDataStore (LoginToStore username) =
+        case username of
+          "root" => pure Authorized
+          _      => pure NotAuthorized
+      runDataStore LogoutFromStore = pure ()
+      runDataStore (AddToList x xs) = pure (x :: xs)
+      runDataStore (Display as) = do putStrLn $ show as
+                                     pure ()
+      runDataStore (Message s) = do putStrLn s
+                                    pure ()
+      runDataStore (Pure x) = pure x
+      runDataStore (x >>= f) = do r <- runDataStore x
+                                  runDataStore (f r)
+    #+END_SRC
+*** Example DSL program
+    #+BEGIN_SRC idris
+      addAndDisplay : DataStore () LoggedOut (const LoggedOut)
+      addAndDisplay = do
+        res <- LoginToStore "root"
+        case res of
+          NotAuthorized => Message "Not authorized user"
+          Authorized => do
+            store <- AddToList "Super secret secret" []
+            Display store
+            store <- AddToList "Second super secret secret" store
+            Display store
+            LogoutFromStore
+    #+END_SRC
+*** Running DSL
+    #+BEGIN_EXAMPLE
+      λΠ> :x runDataStore addAndDisplay
+
+      ["Super secret secret"]
+      ["Second super secret secret", "Super secret secret"]
+    #+END_EXAMPLE
+* Conclusion
+*** Conclusion
+   So, rewrite everything in Ru...Idris?
+*** Problems
+   - Runtime very slow
+   - Mostly 1 person academic project
+   - Pretty non-existant library ecosystem
+*** Use-cases
+   - Prototype compilicated code paths
+   - Check proof correctness
+   - Expand mind about the possible future of the field
+** Books
+*** 
+ [[./idris_book.jpg]]
+***  
+ [[./the_little_typer.jpg]]
+*** Some similar languages
+ - Haskell with extensions
+ - Agda
+ - ATS
+ - F* (not directly related F#)
+ - Coq
+ - Idris 2
+   + will have for example linear types
+* Questions?
+** Sources and links
+- Idris tutorial
+- Running serverless Idris https://donaldpinckney.com/idris/2019/03/26/idris-serverless.html
+* Extras
 ** Formal proof of leftPad
 *** Formal proof of leftPad
     - What should leftPad function do?
@@ -295,31 +425,4 @@ You can also refer to implicit arguments
                            (replicate (n `minus` k) x ++ xs ** n `minus` k ** Refl)
     #+END_SRC
 Code from https://github.com/hwayne/lets-prove-leftpad/blob/master/idris/Leftpad.idr
-* Conclusion
-** Conclusion
-   So, rewrite everything in Ru...Idris?
-*** Problems
-   - Runtime very slow
-   - Mostly 1 person academic project
-   - Pretty non-existant library ecosystem
-*** Use-cases
-   - Prototype compilicated code paths
-   - Proof correctness
-   - Expand mind about the possible future of the field
-** Books
-*** 
- [[./idris_book.jpg]]
-***  
- [[./the_little_typer.jpg]]
-*** Some similar languages
- - Agda
- - F* (not directly related F#)
- - ATS
- - Haskell with extensions
- - Idris 2
-   + will have for example linear types
-* Questions?
-** Sources and links
-- Idris tutorial
-- Running serverless Idris https://donaldpinckney.com/idris/2019/03/26/idris-serverless.html
 

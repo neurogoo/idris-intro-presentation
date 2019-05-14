@@ -54,14 +54,14 @@ data Access = LoggedOut | LoggedIn
 
 data UsernameCheck = Authorized | NotAuthorized
 
-data DataStore : (m : Type) -> (beforeState : Access) -> (afterStateFn : m -> Access) -> Type where
+data DataStore : (a : Type) -> (beforeState : Access) -> (afterStateFn : a -> Access) -> Type where
   LoginToStore : (username : String)
                -> DataStore UsernameCheck LoggedOut (\check => case check of
                                                                     Authorized => LoggedIn
                                                                     NotAuthorized => LoggedOut)
   LogoutFromStore : DataStore () LoggedIn (const LoggedOut)
 
-  AddToList : String -> List String -> DataStore (List String) LoggedIn (const LoggedIn)
+  AddToList : a -> List a -> DataStore (List a) LoggedIn (const LoggedIn)
   Display : (Show a) => a -> DataStore () LoggedIn (const LoggedIn)
   Message : String -> DataStore () state (const state)
 
@@ -87,10 +87,14 @@ runDataStore (LoginToStore username) =
     _      => pure NotAuthorized
 runDataStore LogoutFromStore = pure ()
 runDataStore (AddToList x xs) = pure (x :: xs)
-runDataStore (Display as) = do putStr $ show as
+runDataStore (Display as) = do putStrLn $ show as
                                pure ()
-runDataStore (Message s) = do putStr s
+runDataStore (Message s) = do putStrLn s
                               pure ()
 runDataStore (Pure x) = pure x
 runDataStore (x >>= f) = do r <- runDataStore x
                             runDataStore (f r)
+test : DataStore () LoggedOut (const LoggedOut)
+test = do
+  LoginToStore "user"
+  LogoutFromStore
