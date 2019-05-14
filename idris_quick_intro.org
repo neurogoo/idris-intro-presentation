@@ -35,6 +35,7 @@ patat:
 - Pure strict functional language with dependent types
 - Version 1.0 2017, current version 1.3.1
 - Developed by Edwin Brady from University of St Andrews (Scotland)
+- Default backend C, also Javascript available
 ** Basic syntax
 *** Functions
 #+BEGIN_SRC idris
