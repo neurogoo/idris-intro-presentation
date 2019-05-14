@@ -52,34 +52,45 @@ car = MkCar "Ferrari" 1988
 
 data Access = LoggedOut | LoggedIn
 
-checkDataStoreLogin : (username : String) -> Access
-checkDataStoreLogin "root" = LoggedIn
-checkDataStoreLogin _      = LoggedOut
+data UsernameCheck = Authorized | NotAuthorized
 
-data DataStore : (m : Type) -> (beforeState : Access) -> (afterState : Access) -> Type where
-  LoginToStore : (username : String) -> DataStore () LoggedOut LoggedIn
-  LogoutFromStore : DataStore () LoggedIn LoggedOut
-  GetData : DataStore () LoggedIn a -> DataStore () LoggedIn LoggedIn
+data DataStore : (m : Type) -> (beforeState : Access) -> (afterStateFn : m -> Access) -> Type where
+  LoginToStore : (username : String)
+               -> DataStore UsernameCheck LoggedOut (\check => case check of
+                                                                    Authorized => LoggedIn
+                                                                    NotAuthorized => LoggedOut)
+  LogoutFromStore : DataStore () LoggedIn (const LoggedOut)
 
-  AddToList : String -> DataStore (List String) state state
-  Display : DataStore (List String) state state
+  AddToList : String -> List String -> DataStore (List String) LoggedIn (const LoggedIn)
+  Display : (Show a) => a -> DataStore () LoggedIn (const LoggedIn)
+  Message : String -> DataStore () state (const state)
 
-  Pure : m -> DataStore m state state
-  (>>=) : DataStore a state1 state2 -> (a -> DataStore b state2 state3) -> DataStore b state1 state3
+  Pure : (res : m) -> DataStore m (stateFn res) stateFn
+  (>>=) : DataStore a state1 state2Fn -> ((res : a) -> DataStore b (state2Fn res) state3Fn) -> DataStore b state1 state3Fn
 
-addAndDisplay : DataStore () LoggedOut LoggedOut
+addAndDisplay : DataStore () LoggedOut (const LoggedOut)
 addAndDisplay = do
-  LoginToStore "jee"
-  AddToList "Super secret secret"
-  Display
-  LogoutFromStore
+  res <- LoginToStore "root"
+  case res of
+    NotAuthorized => Message "Not authorized user"
+    Authorized => do
+      store <- AddToList "Super secret secret" []
+      Display store
+      store <- AddToList "Second super secret secret" store
+      Display store
+      LogoutFromStore
 
-runDataStore : IORef a -> DataStore res state1 state2 -> IO res
-runDataStore a (LoginToStore username) = pure ()
-runDataStore a LogoutFromStore = pure ()
-runDataStore a (GetData x) = pure ()
-runDataStore a (AddToList x) = ?aukko4
-runDataStore a Display = ?runDataStore_rhs_8
-runDataStore a (Pure x) = pure x
-runDataStore a (x >>= f) = do r <- runDataStore a x
-                              runDataStore a (f r)
+runDataStore : DataStore res state1 state2fn -> IO res
+runDataStore (LoginToStore username) =
+  case username of
+    "root" => pure Authorized
+    _      => pure NotAuthorized
+runDataStore LogoutFromStore = pure ()
+runDataStore (AddToList x xs) = pure (x :: xs)
+runDataStore (Display as) = do putStr $ show as
+                               pure ()
+runDataStore (Message s) = do putStr s
+                              pure ()
+runDataStore (Pure x) = pure x
+runDataStore (x >>= f) = do r <- runDataStore x
+                            runDataStore (f r)
