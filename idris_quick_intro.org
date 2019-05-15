@@ -57,6 +57,12 @@ You can give names to all type arguments
   greeter : (name : String) -> (city : String) -> String
   greeter name city = "Hello " ++ name ++ " from " ++ city
 #+END_SRC
+
+Anonymous functions
+
+#+BEGIN_SRC idris
+  \name, city => "Hello " ++ name ++ " from " ++ city
+#+END_SRC
 *** Functions
 You can also refer to implicit arguments
 #+BEGIN_SRC idris
@@ -284,7 +290,7 @@ You can also refer to implicit arguments
             -> DataStore b state1 state3Fn
 
       -- Example
-      LoginToStore "user" >>= LogoutFromStore
+      LoginToStore "user" >>= \res => LogoutFromStore
 
       -- Syntactic sugar
       test = do

@@ -94,7 +94,10 @@ runDataStore (Message s) = do putStrLn s
 runDataStore (Pure x) = pure x
 runDataStore (x >>= f) = do r <- runDataStore x
                             runDataStore (f r)
-test : DataStore () LoggedOut (const LoggedOut)
-test = do
-  LoginToStore "user"
-  LogoutFromStore
+
+
+--test : DataStore () LoggedOut (const LoggedOut)
+--test = LoginToStore "user" >>= \res => LogoutFromStore
+--test = do
+--  LoginToStore "user"
+--  LogoutFromStore
