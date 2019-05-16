@@ -2,6 +2,21 @@ module Testing
 
 import Data.Vect
 import Data.IORef
+import Data.SortedSet
+
+isSingleton : Bool -> Type
+isSingleton True = Nat
+isSingleton False = List Nat
+
+giveMeNumber : (multiple : Bool) -> (isSingleton multiple)
+giveMeNumber False = [2,2,2]
+giveMeNumber True = 2
+
+-- (a ** (prf
+passwordRequirements : String -> Type
+passwordRequirements password = Pair
+  (password ** ((length $ Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))) `Prelude.Nat.GT` 0))
+  (password ** ( Prelude.Strings.length password `GTE` 12))
 
 record Login where
   constructor MkLogin
@@ -15,6 +30,20 @@ createNewUser : (loginName : String) -> (password : String) -> Either String Log
 createNewUser loginName password = case passwordStrengthChecker password of
   Yes prf => Right $ MkLogin loginName (password ** prf)
   No prf  => Left "Password was not long enough"
+
+total
+symbolCheck : (password : String) -> Dec (password ** (length $ Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))) `Prelude.Nat.GT` 0)
+symbolCheck password = case isLTE 1 (length $ Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))) of
+  Yes prf => Yes (password ** prf)
+  No prf => No (believe_me "jes")
+
+total
+newCheck : (password : String) -> Dec (passwordRequirements password)
+newCheck password = case (passwordStrengthChecker password, symbolCheck password) of
+  (Yes prf1, Yes prf2) => Yes (prf2, (password ** prf1))
+  (Yes prf, No contra) => Yes ((?passwordStrengthChecker_rhs_3 ** ?passwordStrengthChecker_rhs_4),
+     (?passwordStrengthChecker_rhs_5 ** prf))
+  (No contra, b) => ?passwordStrengthChecker_rhs_2
 
 data ListLast : List a -> Type where
   Empty : ListLast []
@@ -95,9 +124,38 @@ runDataStore (Pure x) = pure x
 runDataStore (x >>= f) = do r <- runDataStore x
                             runDataStore (f r)
 
+data Zones = A | B | C | D | E
+
+implementation Eq Zones where
+  A == A = True
+  B == B = True
+  C == C = True
+  D == D = True
+  E == E = True
+  _ == _ = False
+
+implementation Ord Zones where
+  compare a b = if a == b then EQ else
+                   case (a,b) of
+                     (A, _) => LT
+                     (_, A) => GT
+                     (B, _) => LT
+                     (_, B) => GT
+                     (C, _) => LT
+                     (_, C) => GT
+                     (D, _) => LT
+                     (_, D) => GT
+                     (E, _) => LT
+                     (_, E) => GT
+
+
 
 --test : DataStore () LoggedOut (const LoggedOut)
 --test = LoginToStore "user" >>= \res => LogoutFromStore
 --test = do
 --  LoginToStore "user"
 --  LogoutFromStore
+
+-- Local Variables:
+-- idris-load-packages: ("pruviloj" "prelude" "effects" "contrib" "base")
+-- End:

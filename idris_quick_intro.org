@@ -63,19 +63,6 @@ Anonymous functions
 #+BEGIN_SRC idris
   \name, city => "Hello " ++ name ++ " from " ++ city
 #+END_SRC
-*** Functions
-You can also refer to implicit arguments
-#+BEGIN_SRC idris
-  sayLength : Vect n a -> String
-  sayLength {n} _ = "You gave Vector of length " ++ (cast n)
-#+END_SRC
-
-- Example
-
-#+BEGIN_EXAMPLE
-  λΠ> sayLength [1,2,3]
-  "You gave Vector of length 3" : String
-#+END_EXAMPLE
 ** Basic syntax: data
 *** Data types
    Sum types
@@ -130,7 +117,6 @@ You can also refer to implicit arguments
      1988 : Int
    #+END_EXAMPLE
 
-** A step up
 *** Interfaces
     - For implementing constrained generic types
     - Think of Rust traits or Haskell type classes
@@ -198,6 +184,27 @@ You can also refer to implicit arguments
      isSingleton True = Nat
      isSingleton False = List Nat
    #+END_SRC
+
+   - Using
+   #+BEGIN_SRC idris
+     giveMeNumber : (multiple : Bool) -> (isSingleton multiple)
+     giveMeNumber False = [2,2,2]
+     giveMeNumber True = 2
+   #+END_SRC
+   
+*** Mixing type level and value level
+   Referring to (implicit) argument in value level
+   #+BEGIN_SRC idris
+     sayLength : Vect n a -> String
+     sayLength {n} _ = "You gave Vector of length " ++ (cast n)
+   #+END_SRC
+
+- Example
+
+#+BEGIN_EXAMPLE
+  λΠ> sayLength [1,2,3]
+  "You gave Vector of length 3" : String
+#+END_EXAMPLE
 ** Dependent pair
 *** Dependent pair
     - Dependent pair
@@ -386,12 +393,13 @@ You can also refer to implicit arguments
  [[./idris_book.jpg]]
 ***  
  [[./the_little_typer.jpg]]
-*** Some similar languages
+*** Other languages to look for
  - Haskell with extensions
  - Agda
  - ATS
- - F* (not directly related F#)
  - Coq
+ - F* (not directly related F#)
+ - TLA+
  - Idris 2
    + will have for example linear types
 * Questions?
