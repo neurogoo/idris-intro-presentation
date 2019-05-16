@@ -14,9 +14,8 @@ giveMeNumber True = 2
 
 -- (a ** (prf
 passwordRequirements : String -> Type
-passwordRequirements password = Pair
-  (password ** ((length $ Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))) `Prelude.Nat.GT` 0))
-  (password ** ( Prelude.Strings.length password `GTE` 12))
+passwordRequirements password = (password ** Pair ((length $ Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))) `Prelude.Nat.GT` 0)
+                                                   (Prelude.Strings.length password `GTE` 12))
 
 record Login where
   constructor MkLogin
@@ -38,12 +37,17 @@ symbolCheck password = case isLTE 1 (length $ Data.SortedSet.toList (intersectio
   No prf => No (believe_me "jes")
 
 total
-newCheck : (password : String) -> Dec (passwordRequirements password)
-newCheck password = case (passwordStrengthChecker password, symbolCheck password) of
-  (Yes prf1, Yes prf2) => Yes (prf2, (password ** prf1))
-  (Yes prf, No contra) => Yes ((?passwordStrengthChecker_rhs_3 ** ?passwordStrengthChecker_rhs_4),
-     (?passwordStrengthChecker_rhs_5 ** prf))
-  (No contra, b) => ?passwordStrengthChecker_rhs_2
+newCheck : (password : String)
+         -> {auto p : length password `GTE` 12}
+         -> {auto t : length (Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))) `Prelude.Nat.GT` 0}
+         -> passwordRequirements password
+newCheck {p} {t} password = (password ** (t , p))
+
+testicheck : String
+testicheck = let testistring = "123456789123#"
+                 jotain = (intersection (fromList ['#','%','&','+']) (fromList $ unpack testistring))
+                 (s ** prf) = newCheck testistring
+             in s
 
 data ListLast : List a -> Type where
   Empty : ListLast []
