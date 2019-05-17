@@ -390,6 +390,36 @@ Anonymous functions
       ["Super secret secret"]
       ["Second super secret secret", "Super secret secret"]
     #+END_EXAMPLE
+* Conclusion
+*** Conclusion
+   So, rewrite everything in Ru...Idris?
+*** Problems
+   - Runtime very slow
+   - Mostly 1 person academic project
+   - Pretty non-existant library ecosystem
+*** Use-cases
+   - Prototype compilicated code paths
+   - Check proof correctness
+   - Expand mind about the possible future of the field
+** Books
+*** Idris book 
+ [[./idris_book.jpg]]
+*** The Little Typer
+ [[./the_little_typer.jpg]]
+*** Other languages to look for
+ - Haskell with extensions
+ - Agda
+ - ATS
+ - Coq
+ - F* (not directly related F#)
+ - TLA+
+ - Idris 2
+   + will have for example linear types
+* Questions?
+** Sources and links
+- Idris tutorial
+- Running serverless Idris https://donaldpinckney.com/idris/2019/03/26/idris-serverless.html
+* Extras
 ** Views with dependent types
 *** Example: NatToBin
 #+BEGIN_SRC idris
@@ -426,36 +456,6 @@ Anonymous functions
          natToBin (j + j)     | Even = False :: natToBin j
          natToBin (S (j + j)) | Odd  = True  :: natToBin j
     #+END_SRC 
-* Conclusion
-*** Conclusion
-   So, rewrite everything in Ru...Idris?
-*** Problems
-   - Runtime very slow
-   - Mostly 1 person academic project
-   - Pretty non-existant library ecosystem
-*** Use-cases
-   - Prototype compilicated code paths
-   - Check proof correctness
-   - Expand mind about the possible future of the field
-** Books
-*** Idris book 
- [[./idris_book.jpg]]
-*** The Little Typer
- [[./the_little_typer.jpg]]
-*** Other languages to look for
- - Haskell with extensions
- - Agda
- - ATS
- - Coq
- - F* (not directly related F#)
- - TLA+
- - Idris 2
-   + will have for example linear types
-* Questions?
-** Sources and links
-- Idris tutorial
-- Running serverless Idris https://donaldpinckney.com/idris/2019/03/26/idris-serverless.html
-* Extras
 ** Formal proof of leftPad
 *** Formal proof of leftPad
     - What should leftPad function do?
