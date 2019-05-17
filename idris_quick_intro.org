@@ -417,7 +417,7 @@ Anonymous functions
    + will have for example linear types
 * Questions?
 ** Sources and links
-- Idris tutorial
+- Idris tutorial http://docs.idris-lang.org/en/latest/index.html
 - Running serverless Idris https://donaldpinckney.com/idris/2019/03/26/idris-serverless.html
 * Extras
 ** Views with dependent types
@@ -470,7 +470,7 @@ Anonymous functions
       simpleLeftPad : Char -> Int -> String -> String
       simpleLeftPad padChar paddingLength xs = xs
     #+END_SRC
-*** Formal proof of leftPad [2/2]
+*** Formal proof of leftPad
     #+BEGIN_SRC idris
       import Data.Vect
 
