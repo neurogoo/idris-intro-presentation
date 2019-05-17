@@ -12,31 +12,42 @@ patat:
 :PROPERTIES:
 :COMMENT: Remember to tell what you would like people getting out of this talk
 :END:
+*** Table of contents
 - Motivation
 - Basic structures
 - Fancy things with dependent types
 - Conclusion
 * Motivation  
+*** Motivation
 - Fixing disconnect between the idea of the program with the code of the program
 - Currently used type systems don't have the ability express necessary ideas
+- Examples
+  + How to make sure that there are no invalid state transitions
+  + How to encode all the rules that some piece of data like password has to follow
 *** Motivating example
-  #+begin_src plantuml :file my-diagram.txt
-    title Authentication Sequence
-
-    Alice->Bob: Authentication Request
-    note right of Bob: Bob thinks about it
-    Bob->Alice: Authentication Response
-   #+end_src
-
-   #+RESULTS:
-   [[file:my-diagram.txt]]
+    #+BEGIN_EXAMPLE
+           +--------------------------------------------------------------------------------+
+           |                                                                                |
+           |    +--------------------+                              +---------------------+ |
+           |    |                    |    Logging in/Logging out    |                     | |
+           |    |      LoggedOut     |<------------+--------------->|    LoggedIn         | |
+           |    |                    |             |                |                     | |
+           |    +--------------------+             |                | + Add to Store      | |
+           |                  ^                    |                | + Display store     | |
+           |                  |   Failed attempt   |                |                     | |
+           |                  +--------------------+                +---------------------+ |
+           |                                                                                |
+           |  + Message                                                                     |
+           +--------------------------------------------------------------------------------+
+    #+END_EXAMPLE
 
 * What is Idris
+*** What is Idris
 - Pure strict functional language with dependent types
 - Version 1.0 2017, current version 1.3.1
 - Developed by Edwin Brady from University of St Andrews (Scotland)
 - Default backend C, also Javascript available
-** Basic syntax
+** Functions
 *** Functions
 #+BEGIN_SRC idris
  hello : String -> String
@@ -63,21 +74,29 @@ Anonymous functions
 #+BEGIN_SRC idris
   \name, city => "Hello " ++ name ++ " from " ++ city
 #+END_SRC
-** Basic syntax: data
-*** Data types
-   Sum types
+** Data types
+*** Data types: Sum types
+    Also called tagged or discriminated unions
    #+BEGIN_SRC idris
      data AuthorisationStatus = NotAuthorised | Authorised
    #+END_SRC
-*** Data types
+
+   #+BEGIN_SRC idris
+     data Color = Red | Green | Blue
+   #+END_SRC
+
+   #+BEGIN_SRC idris
+     data Pets = Dogs Nat | Cats Nat | NoPets
+   #+END_SRC
+
+*** Data types: Sum types
    Can be also writen in form
    #+BEGIN_SRC idris
      data AuthorisationStatus where
        NotAuthorised : AuthorisationStatus
        Authorised : AuthorisationStatus
    #+END_SRC
-*** Data types
-   Dependent data types
+*** Data types: Dependent data type
    #+BEGIN_SRC idris
      data PriceCategory = Regular | BestBefore | Membership
 
@@ -86,7 +105,7 @@ Anonymous functions
        BestBefore : ProductPrice BestBefore
        Membership : (discountPercent : Float) -> ProductPrice Membership
    #+END_SRC
-*** Data types
+*** Data types: Pattern matching and dependent type
     #+BEGIN_SRC idris
       calculateFinalPrice : (productPrice : ProductPrice price category) -> Double
       calculateFinalPrice {price} RegularPrice = price
@@ -98,8 +117,8 @@ Anonymous functions
       limitedOffer : (productPrice : ProductPrice price category) -> {auto p : price < 20.0 = True} -> Double
       limitedOffer {price} _ = 0.5 * price
     #+END_SRC
-*** Data types
-   Record types (also called product types)
+*** Data types: Record types
+   Also called product types
    #+BEGIN_SRC idris
      record Car where
        constructor MkCar
@@ -121,18 +140,15 @@ Anonymous functions
     - For implementing constrained generic types
     - Think of Rust traits or Haskell type classes
     #+BEGIN_SRC idris
+      data Example = MkExample
+
       interface Show a where
         show : a -> String
-    #+END_SRC
-** Pattern matching and views
-*** Pattern matching
-    #+BEGIN_SRC idris
-      data HotDrinks = Coffee | Tea
 
-      congratulation : HotDrinks -> String
-      congratulation Coffee = "First grind beans"
-      congratulation Tea    = "First boil water"
+      Show Example where
+        show MkExample = "You gave me example"
     #+END_SRC
+** Views
 *** Views
    - Extending pattern matching
    - Some times there is need for alternative view point to data structure
@@ -236,42 +252,39 @@ Anonymous functions
         Yes prf => Right $ MkLogin loginName (password ** prf)
         No prf  => Left "Password was not long enough"
     #+END_SRC
-** Views with dependent types
-*** Example: NatToBin
-#+BEGIN_SRC idris
-  natToBin : Nat -> List Bool
-#+END_SRC
-#+BEGIN_SRC idris
-  data Parity : Nat -> Type where
-     Even : Parity (n + n)
-     Odd  : Parity (S (n + n))
-#+END_SRC
-*** Example: NatToBin
-    - *plusSuccRightSucc* proof that 1 + (x + y) = x + (1 + y)
+** Step up
+*** More requirements 
     #+BEGIN_SRC idris
-      helpEven : (j : Nat) -> Parity (S j + S j) -> Parity (S (S (plus j j)))
-      helpEven j p = rewrite plusSuccRightSucc j j in p
+      hasSpecialSymbols : String -> Type
+      hasSpecialSymbols password =
+        let specialCharacters = 
+          Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))
+        in length specialCharacters `GT` 0
 
-      helpOdd : (j : Nat) -> Parity (S (S (j + S j))) -> Parity (S (S (S (j + j))))
-      helpOdd j p = rewrite plusSuccRightSucc j j in p
+      longEnoughPassword : String -> Nat -> Type
+      longEnoughPassword password n = length password `GTE` n
+
+      passwordRequirements : String -> Type
+      passwordRequirements password = 
+        (password ** Pair (hasSpecialSymbols password) (longEnoughPassword password 12))
     #+END_SRC
-*** Example: NatToBin
+*** Checking requirements
     #+BEGIN_SRC idris
-      parity : (n:Nat) -> Parity n
-      parity Z     = Even {n=Z}
-      parity (S Z) = Odd {n=Z}
-      parity (S (S k)) with (parity k)
-        parity (S (S (j + j)))     | Even = helpEven j (Even {n = S j})
-        parity (S (S (S (j + j)))) | Odd  = helpOdd j (Odd {n = S j})
+      symbolCheck : (password : String) -> Dec (hasSpecialSymbols password)
+      symbolCheck password =
+        let specialCharacters = 
+          Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))
+        in isLTE 1 (length specialCharacters)
+
+      passwordStrengthChecker : (password : String) -> Dec (length password `GTE` 12)
+      passwordStrengthChecker password = isLTE 12 (length password)
+
+      checkRequirements : (p : String) -> Either String (passwordRequirements p)
+      checkRequirements password =
+        case (symbolCheck password, passwordStrengthChecker password) of
+          (Yes prf1, Yes prf2) => Right $ (password ** (prf1,prf2))
+          _ => Left "Not good enough password"
     #+END_SRC
-*** Example: NatToBin
-    #+BEGIN_SRC idris
-      natToBin : Nat -> List Bool
-      natToBin Z = Nil
-      natToBin k with (parity k)
-         natToBin (j + j)     | Even = False :: natToBin j
-         natToBin (S (j + j)) | Odd  = True  :: natToBin j
-    #+END_SRC 
 ** Typed state machine with dependent types
 *** State machine interface
     #+BEGIN_SRC idris
@@ -377,6 +390,42 @@ Anonymous functions
       ["Super secret secret"]
       ["Second super secret secret", "Super secret secret"]
     #+END_EXAMPLE
+** Views with dependent types
+*** Example: NatToBin
+#+BEGIN_SRC idris
+  natToBin : Nat -> List Bool
+#+END_SRC
+#+BEGIN_SRC idris
+  data Parity : Nat -> Type where
+     Even : Parity (n + n)
+     Odd  : Parity (S (n + n))
+#+END_SRC
+*** Example: NatToBin
+    - *plusSuccRightSucc* proof that 1 + (x + y) = x + (1 + y)
+    #+BEGIN_SRC idris
+      helpEven : (j : Nat) -> Parity (S j + S j) -> Parity (S (S (plus j j)))
+      helpEven j p = rewrite plusSuccRightSucc j j in p
+
+      helpOdd : (j : Nat) -> Parity (S (S (j + S j))) -> Parity (S (S (S (j + j))))
+      helpOdd j p = rewrite plusSuccRightSucc j j in p
+    #+END_SRC
+*** Example: NatToBin
+    #+BEGIN_SRC idris
+      parity : (n:Nat) -> Parity n
+      parity Z     = Even {n=Z}
+      parity (S Z) = Odd {n=Z}
+      parity (S (S k)) with (parity k)
+        parity (S (S (j + j)))     | Even = helpEven j (Even {n = S j})
+        parity (S (S (S (j + j)))) | Odd  = helpOdd j (Odd {n = S j})
+    #+END_SRC
+*** Example: NatToBin
+    #+BEGIN_SRC idris
+      natToBin : Nat -> List Bool
+      natToBin Z = Nil
+      natToBin k with (parity k)
+         natToBin (j + j)     | Even = False :: natToBin j
+         natToBin (S (j + j)) | Odd  = True  :: natToBin j
+    #+END_SRC 
 * Conclusion
 *** Conclusion
    So, rewrite everything in Ru...Idris?
@@ -389,9 +438,9 @@ Anonymous functions
    - Check proof correctness
    - Expand mind about the possible future of the field
 ** Books
-*** 
+*** Idris book 
  [[./idris_book.jpg]]
-***  
+*** The Little Typer
  [[./the_little_typer.jpg]]
 *** Other languages to look for
  - Haskell with extensions

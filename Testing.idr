@@ -4,6 +4,10 @@ import Data.Vect
 import Data.IORef
 import Data.SortedSet
 
+%default total
+
+data Pets = Dogs Nat | Cats Nat | NoPets
+
 isSingleton : Bool -> Type
 isSingleton True = Nat
 isSingleton False = List Nat
@@ -12,11 +16,16 @@ giveMeNumber : (multiple : Bool) -> (isSingleton multiple)
 giveMeNumber False = [2,2,2]
 giveMeNumber True = 2
 
--- (a ** (prf
+hasSpecialSymbols : String -> Type
+hasSpecialSymbols password =
+  let specialCharacters = Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))
+  in length specialCharacters `GT` 0
+
+longEnoughPassword : String -> Nat -> Type
+longEnoughPassword password n = length password `GTE` n
+
 passwordRequirements : String -> Type
-passwordRequirements password =
-  (password ** Pair ((length $ Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))) `Prelude.Nat.GT` 0)
-                     (Prelude.Strings.length password `GTE` 12))
+passwordRequirements password = (password ** Pair (hasSpecialSymbols password) (longEnoughPassword password 12))
 
 record Login where
   constructor MkLogin
@@ -31,16 +40,16 @@ createNewUser loginName password = case passwordStrengthChecker password of
   Yes prf => Right $ MkLogin loginName (password ** prf)
   No prf  => Left "Password was not long enough"
 
-total
-symbolCheck : (password : String) -> Dec (password ** (length $ Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))) `Prelude.Nat.GT` 0)
-symbolCheck password = case isLTE 1 (length $ Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))) of
-  Yes prf => Yes (password ** prf)
-  No prf => No (believe_me "jes")
+symbolCheck : (password : String) -> Dec (hasSpecialSymbols password)
+symbolCheck password =
+  let specialCharacters =
+    Data.SortedSet.toList (intersection (fromList ['#','%','&','+']) (fromList $ unpack password))
+  in isLTE 1 (length specialCharacters)
 
-testicheck : (p : String) -> Either String (passwordRequirements p)
-testicheck password =
+checkRequirements : (p : String) -> Either String (passwordRequirements p)
+checkRequirements password =
   case (symbolCheck password, passwordStrengthChecker password) of
-    (Yes (_ ** prf1), Yes prf2) => Right $ (password ** (prf1,prf2))
+    (Yes prf1, Yes prf2) => Right $ (password ** (prf1,prf2))
     _ => Left "Not good enough password"
 
 data ListLast : List a -> Type where
