@@ -19,9 +19,9 @@ patat:
 - Conclusion
 * Motivation  
 *** Motivation
+- Exhaustive testing
 - Fixing disconnect between the idea of the program with the code of the program
-- Currently used type systems don't have the ability express necessary ideas
-- Examples
+- Having ability to fully express invariants in the system
   + How to make sure that there are no invalid state transitions
   + How to encode all the rules that some piece of data like password has to follow
 *** Motivating example
@@ -98,24 +98,19 @@ Anonymous functions
    #+END_SRC
 *** Data types: Dependent data type
    #+BEGIN_SRC idris
-     data PriceCategory = Regular | BestBefore | Membership
+     data PriceCategory = Regular | Membership
 
-     data ProductPrice : PriceCategory -> Type where
-       Regular : ProductPrice Regular
-       BestBefore : ProductPrice BestBefore
-       Membership : (discountPercent : Float) -> ProductPrice Membership
+     data ProductPrice : (price : Double) -> PriceCategory -> Type where
+       RegularPrice : ProductPrice price Regular
+       BestBeforePrice : ProductPrice price Regular
+       MembershipPrice : (discountPercent : Double) -> ProductPrice price Membership
    #+END_SRC
-*** Data types: Pattern matching and dependent type
+*** Data types: Pattern matching
     #+BEGIN_SRC idris
       calculateFinalPrice : (productPrice : ProductPrice price category) -> Double
       calculateFinalPrice {price} RegularPrice = price
       calculateFinalPrice {price} BestBeforePrice = 0.7 * price
       calculateFinalPrice {price} (MembershipPrice discount) = discount * price
-    #+END_SRC
-
-    #+BEGIN_SRC idris
-      limitedOffer : (productPrice : ProductPrice price category) -> {auto p : price < 20.0 = True} -> Double
-      limitedOffer {price} _ = 0.5 * price
     #+END_SRC
 *** Data types: Record types
    Also called product types
@@ -221,6 +216,31 @@ Anonymous functions
   λΠ> sayLength [1,2,3]
   "You gave Vector of length 3" : String
 #+END_EXAMPLE
+*** Data types continued
+    #+BEGIN_SRC idris
+      limitedOffer : (productPrice : ProductPrice price category) -> {auto p : price < 20.0 = True} -> Double
+      limitedOffer {price} _ = 0.5 * price
+    #+END_SRC
+
+    #+BEGIN_EXAMPLE
+      λΠ> limitedOffer (the (ProductPrice 19.0 Regular) RegularPrice)
+      9.5 : Double
+    #+END_EXAMPLE
+*** Data types continued: Testing
+    
+    #+BEGIN_SRC idris
+      unitTest1 : limitedOffer (the (ProductPrice 19.0 Regular) RegularPrice) = 0.5 * 19.0
+      unitTest1 = Refl
+
+      -- Does not typecheck
+      unitTest2 : limitedOffer (the (ProductPrice 21.0 Regular) RegularPrice) = 0.5 * 21.0
+    #+END_SRC
+
+    #+BEGIN_EXAMPLE
+      Can't find a value of type 
+              False = True
+    #+END_EXAMPLE
+
 ** Dependent pair
 *** Dependent pair
     - Dependent pair

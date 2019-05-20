@@ -9,18 +9,14 @@
 *** Idris 2.0/ Blodwen
 * Palautetta esitelmästä
 puhu mistä Idris on tullut
-mieti poistatko ekan funktion
 lisää esimerkki type level nimen referoimisesta
 interface paha Monad? enemmän esimerkkejä
-kirjoita toistenpäin title "views and pattern matching"
 lisää record tyyppiin, että se on product type
 vaihda congruraltion funktion nimi
 toinen esimerkki pattern matchiin
 kerro totaalisuudesta
 lisää tulos esimerkkejä
-any question
 lisää motivaatioesimerkkejä
-vaihda se leftpading kanssa
 lisää esimerkki
 mieti voitko tehdä esimerkin vs RemoteData Typescript maailmassa
 Mieti voisitko puhua session tyypeistä
@@ -35,3 +31,4 @@ Mieti voisitko puhua session tyypeistä
 - Nimeä mikä on generalized algebral data type
 - Mainitse, että on ML perheestä
 - Mainitse mutaatiosta
+- Lisää joku testi "compile-time unit testistä"

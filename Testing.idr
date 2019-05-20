@@ -60,11 +60,11 @@ data MyList : (a : Type) -> Type where
   Nil : MyList a
   (::) : (x : a) -> (xs : MyList a) -> MyList a
 
-data PriceCategory = Regular | BestBefore | Membership
+data PriceCategory = Regular | Membership
 
 data ProductPrice : (price : Double) -> PriceCategory -> Type where
   RegularPrice : ProductPrice price Regular
-  BestBeforePrice : ProductPrice price BestBefore
+  BestBeforePrice : ProductPrice price Regular
   MembershipPrice : (discountPercent : Double) -> ProductPrice price Membership
 
 calculateFinalPrice : (productPrice : ProductPrice price category) -> Double
@@ -74,6 +74,11 @@ calculateFinalPrice {price} (MembershipPrice discount) = discount * price
 
 limitedOffer : (productPrice : ProductPrice price category) -> {auto p : price < 20.0 = True} -> Double
 limitedOffer {price} _ = 0.5 * price
+
+unitTest1 : limitedOffer (the (ProductPrice 19.0 Regular) RegularPrice) = 0.5 * 19.0
+unitTest1 = Refl
+
+-- unitTest2 : limitedOffer (the (ProductPrice 21.0 Regular) RegularPrice) = 0.5 * 21.0
 
 sayLength : Vect n a -> String
 sayLength {n} _ = "You gave Vector of length " ++ (cast n)
