@@ -216,7 +216,7 @@ Anonymous functions
   λΠ> sayLength [1,2,3]
   "You gave Vector of length 3" : String
 #+END_EXAMPLE
-*** Data types continued
+*** Auto proof
     #+BEGIN_SRC idris
       limitedOffer : (productPrice : ProductPrice price category) -> {auto p : price < 20.0 = True} -> Double
       limitedOffer {price} _ = 0.5 * price
@@ -226,7 +226,7 @@ Anonymous functions
       λΠ> limitedOffer (the (ProductPrice 19.0 Regular) RegularPrice)
       9.5 : Double
     #+END_EXAMPLE
-*** Data types continued: Testing
+*** Compile time testing
     
     #+BEGIN_SRC idris
       unitTest1 : limitedOffer (the (ProductPrice 19.0 Regular) RegularPrice) = 0.5 * 19.0
@@ -237,8 +237,10 @@ Anonymous functions
     #+END_SRC
 
     #+BEGIN_EXAMPLE
-      Can't find a value of type 
-              False = True
+       When checking type of Testing.unitTest2:
+       When checking argument p to Testing.limitedOffer:
+               Can't find a value of type 
+                       False = True
     #+END_EXAMPLE
 
 ** Dependent pair
