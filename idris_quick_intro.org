@@ -143,46 +143,6 @@ Anonymous functions
       Show Example where
         show MkExample = "You gave me example"
     #+END_SRC
-** Views
-*** Views
-   - Extending pattern matching
-   - Some times there is need for alternative view point to data structure
-     + For example classical linked list (1 (2 (3 (4 Nil))))
-     + Easy to think from start to end, but harder to think from end to start
-     + What if we want to pattern match last item on list?
-*** Views
-    Normal list
-     #+BEGIN_SRC idris
-       data List : (a : Type) -> Type where
-         Nil : List a
-         (::) : (x : a) -> (xs : List a) -> List a
-     #+END_SRC 
-*** Views
-    Reverse cons order
-     #+BEGIN_SRC idris
-       data ListLast : List a -> Type where
-         Empty : ListLast []
-         NonEmpty : (xs : List a) -> (x : a) -> ListLast (xs ++ [x])
-     #+END_SRC
-*** Views
-    Helper function to convert normal List to ListLast
-    #+BEGIN_SRC idris
-      total
-      listLast : (xs : List a) -> ListLast xs
-      listLast [] = Empty
-      listLast (x :: xs) = 
-        case listLast xs of
-          Empty => NonEmpty [] x
-          NonEmpty ys y => NonEmpty (x :: ys) y
-    #+END_SRC
-*** Views
-    #+BEGIN_SRC idris
-      describeListEnd : List Int -> String
-      describeListEnd input with (listLast input)
-        describeListEnd []          | Empty = "Empty"
-        describeListEnd (xs ++ [x]) | (NonEmpty xs x)
-                = "Non-empty, initial portion = " ++ show xs
-    #+END_SRC
 * Dependent types
 *** Dependent types
    Analogous to having first class functions
@@ -439,9 +399,50 @@ Anonymous functions
    + will have for example linear types
 * Questions?
 ** Sources and links
+- Type-Driven Development with Idris
 - Idris tutorial http://docs.idris-lang.org/en/latest/index.html
 - Running serverless Idris https://donaldpinckney.com/idris/2019/03/26/idris-serverless.html
 * Extras
+** Views
+*** Views
+   - Extending pattern matching
+   - Some times there is need for alternative view point to data structure
+     + For example classical linked list (1 (2 (3 (4 Nil))))
+     + Easy to think from start to end, but harder to think from end to start
+     + What if we want to pattern match last item on list?
+*** Views
+    Normal list
+     #+BEGIN_SRC idris
+       data List : (a : Type) -> Type where
+         Nil : List a
+         (::) : (x : a) -> (xs : List a) -> List a
+     #+END_SRC 
+*** Views
+    Reverse cons order
+     #+BEGIN_SRC idris
+       data ListLast : List a -> Type where
+         Empty : ListLast []
+         NonEmpty : (xs : List a) -> (x : a) -> ListLast (xs ++ [x])
+     #+END_SRC
+*** Views
+    Helper function to convert normal List to ListLast
+    #+BEGIN_SRC idris
+      total
+      listLast : (xs : List a) -> ListLast xs
+      listLast [] = Empty
+      listLast (x :: xs) = 
+        case listLast xs of
+          Empty => NonEmpty [] x
+          NonEmpty ys y => NonEmpty (x :: ys) y
+    #+END_SRC
+*** Views
+    #+BEGIN_SRC idris
+      describeListEnd : List Int -> String
+      describeListEnd input with (listLast input)
+        describeListEnd []          | Empty = "Empty"
+        describeListEnd (xs ++ [x]) | (NonEmpty xs x)
+                = "Non-empty, initial portion = " ++ show xs
+    #+END_SRC
 ** Views with dependent types
 *** Example: NatToBin
 #+BEGIN_SRC idris
