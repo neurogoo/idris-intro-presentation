@@ -189,11 +189,15 @@ Anonymous functions
 *** Compile time testing
     
     #+BEGIN_SRC idris
-      unitTest1 : limitedOffer (the (ProductPrice 19.0 Regular) RegularPrice) = 0.5 * 19.0
+      toRegularPrice : (price : Double) -> (ProductPrice price Regular)
+      toRegularPrice price = RegularPrice
+
+      unitTest1 : limitedOffer (toRegularPrice 19.0) = 0.5 * 19.0
       unitTest1 = Refl
 
       -- Does not typecheck
-      unitTest2 : limitedOffer (the (ProductPrice 21.0 Regular) RegularPrice) = 0.5 * 21.0
+      unitTest2 : limitedOffer (toRegularPrice 21.0) = 0.5 * 21.0
+      unitTest2 = Refl
     #+END_SRC
 
     #+BEGIN_EXAMPLE

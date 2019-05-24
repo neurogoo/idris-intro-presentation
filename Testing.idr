@@ -75,10 +75,13 @@ calculateFinalPrice {price} (MembershipPrice discount) = discount * price
 limitedOffer : (productPrice : ProductPrice price category) -> {auto p : price < 20.0 = True} -> Double
 limitedOffer {price} _ = 0.5 * price
 
-unitTest1 : limitedOffer (the (ProductPrice 19.0 Regular) RegularPrice) = 0.5 * 19.0
+toRegularPrice : (price : Double) -> (ProductPrice price Regular)
+toRegularPrice price = RegularPrice
+
+unitTest1 : limitedOffer (toRegularPrice 19.0) = 0.5 * 19.0
 unitTest1 = Refl
 
--- unitTest2 : limitedOffer (the (ProductPrice 21.0 Regular) RegularPrice) = 0.5 * 21.0
+--unitTest2 : limitedOffer (toRegularPrice 21.0) = 0.5 * 21.0
 
 sayLength : Vect n a -> String
 sayLength {n} _ = "You gave Vector of length " ++ (cast n)
@@ -159,7 +162,6 @@ implementation Ord Zones where
                      (_, D) => GT
                      (E, _) => LT
                      (_, E) => GT
-
 
 
 --test : DataStore () LoggedOut (const LoggedOut)
